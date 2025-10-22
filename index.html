@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mi criaturita emo linda </title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&family=Indie+Flower&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1 class="brand"> Mi chica emo linda 💕💕💕</h1>
+    <nav class="nav">
+      <a href="#about">Zeatikan maite det</a>
+      <a href="#gallery">Argazkiak</a>
+      <a href="#music">Kantak</a>
+      <a href="#notes">Kuriositate panpoxak</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-card">
+        <div class="photo-wrap">
+          <!-- Sustituye src por la foto real (consiente y privada si hace falta) -->
+          <img id="profile-photo" src="minovialindapfp.png" alt="Foto de ella">
+          <div class="sparkles" aria-hidden="true">✦ ✦</div>
+        </div>
+        <div class="hero-text">
+          <h2 class="name">Venus (mi novia linda) </h2>
+          <p class="subtitle">Mi persona favorita por ella sonrio todos los dias</p>
+          <div class="actions">
+            <button id="heartBtn" class="btn kawaii">Le doy amor 💗</button>
+            <a class="btn outline" href="#gallery">Argazkiak</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="card-section">
+      <h3>Zeatikan maite det</h3>
+      <p class="card">Nire iluntasunean nere argia da, momentu txarretan nire irifarra, nire bizitzako gauza hoberena</p>
+    </section>
+
+    <section id="gallery" class="card-section">
+      <h3>Argazkiak</h3>
+      <div class="gallery">
+        <!-- Left vertical -->
+        <img class="vertical" src="minovialinda2.png" alt="Foto vertical izquierda">
+        <!-- Middle horizontal -->
+        <img class="horizontal" src="minovialinda.png" alt="Foto horizontal del centro">
+        <!-- Right vertical -->
+        <img class="vertical" src="minovialinda3.png" alt="Foto vertical derecha">
+      </div>
+      <p class="card" style="margin-top:10px; font-size:0.95rem; color:var(--muted)"></p>
+    </section>
+
+    <!-- Nueva sección de música -->
+    <section id="music" class="card-section">
+      <h3>Kantak eta artistak</h3>
+      <p class="card">Aqui estan las canciones que ama muxo minovialinda puedes añadir tu misma mas que se me habran pasado muxas</p>
+
+      <form id="musicForm" class="music-form" aria-label="Añadir canción favorita">
+        <input id="songInput" type="text" placeholder="Kanta (canción)" aria-label="Nombre de la canción" required>
+        <input id="artistInput" type="text" placeholder="Artista" aria-label="Nombre del artista" required>
+        <input id="linkInput" type="text" placeholder="Enlace Spotify/YouTube (opcional)" aria-label="Enlace Spotify o YouTube (opcional)">
+        <button type="submit" class="btn">Añadir</button>
+      </form>
+
+      <ul id="musicList" class="music-list" aria-live="polite">
+        <!-- Lista renderizada por JS -->
+      </ul>
+      <p class="card" style="margin-top:8px; font-size:0.9rem; color:var(--muted)">Tip: erabili ▶︎ musika direkto jartzeko ta ⧉ spotify-en direkto irekitzeko</p>
+    </section>
+
+    <section id="notes" class="card-section">
+      <h3>Kuriositate panpoxak</h3>
+      <ul class="notes">
+        <li>Ama a los animales muchisimo :3</li>
+        <li>Le encanta la musica y su pelo rosita</li>
+        <li>Ama hacer nuevos amigos y enredar con ellos</li>
+        <li>Es muy cariñosa y asertiva</li>
+        <li>Si lees esto recuerda que te amo cosita</li>
+        <li>Le gustan mucho las cosas dulce (regalale)</li>
+        <li>Escribe mejor que mis poetas favoritos</li>
+        <li>Unica e irrenplazable</li>
+      </ul> 
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Nunca olvides mis te quieros 💕</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

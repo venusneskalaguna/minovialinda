@@ -1,0 +1,311 @@
+:root{
+  --bg: #FFF7FB;
+  --card: #fff;
+  --accent1: #ffd6e8; /* rosa pastel */
+  --accent2: #cdeffd; /* celeste pastel */
+  --accent3: #fff0b6; /* amarillo suave */
+  --text: #3a2b3b;
+  --muted: #7a6b78;
+  --radius: 18px;
+  --shadow: 0 8px 20px rgba(58,43,59,0.08);
+  --glass: rgba(255,255,255,0.6);
+
+  /* altura de la foto horizontal (ajusta este valor según prefieras) */
+  --horizontal-height: 320px; /* aumentado un poco */
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Indie Flower", sans-serif;
+  background: linear-gradient(180deg,var(--bg), #FFFBF2);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  padding:24px;
+}
+
+/* Topbar */
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:18px;
+}
+.brand{
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:1.2rem;
+}
+.star{font-family: "Indie Flower"; font-size:1.3rem}
+.nav a{
+  text-decoration:none;
+  color:var(--muted);
+  margin-left:10px;
+  font-weight:500;
+}
+
+/* Hero */
+.hero{
+  display:flex;
+  justify-content:center;
+  margin-bottom:20px;
+}
+.hero-card{
+  width:100%;
+  max-width:920px;
+  background:linear-gradient(180deg,var(--card),var(--glass));
+  border-radius:var(--radius);
+  padding:20px;
+  display:flex;
+  gap:20px;
+  align-items:center;
+  box-shadow:var(--shadow);
+  border:1px solid rgba(255,255,255,0.6);
+}
+.photo-wrap{
+  position:relative;
+  width:160px;
+  height:160px;
+  flex:0 0 160px;
+  border-radius:50%;
+  overflow:hidden;
+  /* borde rosita */
+  box-shadow: 0 10px 30px rgba(255,214,232,0.35);
+  border:6px solid var(--accent1);
+}
+.photo-wrap img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  transform:scale(1.02);
+}
+.sparkles{
+  position:absolute;
+  left:8px; bottom:8px;
+  font-size:0.9rem;
+  animation: twinkle 2.8s infinite;
+}
+@keyframes twinkle{
+  0%{opacity:0.6; transform:translateY(0)}
+  50%{opacity:1; transform:translateY(-4px)}
+  100%{opacity:0.6; transform:translateY(0)}
+}
+
+.hero-text .name{
+  margin:0;
+  font-size:1.6rem;
+  font-weight:700;
+  font-family: "Indie Flower", "Poppins";
+}
+.subtitle{margin-top:6px;color:var(--muted)}
+.actions{margin-top:12px; display:flex; gap:10px; align-items:center}
+
+.btn{
+  padding:8px 14px;
+  border-radius:12px;
+  background:var(--accent1);
+  border:none;
+  cursor:pointer;
+  box-shadow: 0 6px 14px rgba(255,214,232,0.6);
+  transition:transform .12s ease, box-shadow .12s;
+  font-weight:600;
+}
+.btn:hover{ transform:translateY(-3px) }
+.btn.outline{
+  background:transparent;
+  border:1px solid rgba(58,43,59,0.06);
+  box-shadow:none;
+}
+
+/* Sections */
+.card-section{
+  max-width:920px;
+  margin:18px auto;
+  background:var(--card);
+  padding:16px;
+  border-radius:14px;
+  box-shadow:var(--shadow);
+  border:1px solid rgba(255,255,255,0.6);
+}
+.card-section h3{margin-top:0; font-family: "Indie Flower"; font-size:1.2rem}
+.card{color:var(--muted); line-height:1.5}
+
+/* Gallery - layout: vertical | horizontal | vertical */
+.gallery{
+  display:flex;
+  gap:10px;
+  align-items:center; /* centra la imagen horizontal verticalmente entre las verticales */
+  margin-top:10px;
+}
+
+/* Fotos verticales laterales */
+.gallery img.vertical{
+  width:170px;            /* anchura fija para mantener proporción */
+  height:320px;          /* alto mayor para efecto vertical */
+  object-fit:cover;
+  border-radius:12px;
+  box-shadow: 0 6px 20px rgba(175,123,154,0.06);
+  border:4px solid rgba(255,255,255,0.5);
+  transition:transform .15s ease;
+}
+
+/* Foto central horizontal (más ancha y ahora más alta) */
+.gallery img.horizontal{
+  flex:1 1 auto;         /* ocupa el espacio restante */
+  min-width:220px;
+  height: var(--horizontal-height); /* ahora controlable desde la variable */
+  object-fit:cover;
+  border-radius:12px;
+  box-shadow: 0 6px 20px rgba(175,123,154,0.06);
+  border:4px solid rgba(255,255,255,0.5);
+  transition:transform .15s ease;
+}
+
+.gallery img:hover{ transform:scale(1.03) }
+
+/* Sección de música: formulario y lista */
+.music-form{
+  display:flex;
+  gap:8px;
+  margin-top:10px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.music-form input[type="text"]{
+  padding:8px 10px;
+  border-radius:10px;
+  border:1px solid rgba(58,43,59,0.06);
+  background:#fff;
+  min-width:160px;
+  flex:1 1 220px;
+}
+.music-list{
+  list-style:none;
+  padding:0;
+  margin:12px 0 0 0;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.music-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px;
+  border-radius:12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,244,249,0.9));
+  border:1px solid rgba(255,255,255,0.6);
+  box-shadow: 0 6px 14px rgba(58,43,59,0.03);
+  flex-direction:column;
+  align-items:stretch;
+}
+.music-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+.music-meta{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+.music-meta .song{
+  font-weight:600;
+  color:var(--text);
+}
+.music-meta .artist{
+  font-size:0.9rem;
+  color:var(--muted);
+}
+.music-actions{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.icon-btn{
+  background:transparent;
+  border:none;
+  cursor:pointer;
+  font-size:0.95rem;
+  padding:6px 8px;
+  border-radius:8px;
+}
+.icon-btn:hover{ background: rgba(255,214,232,0.6) }
+
+/* Play button */
+.play-btn{
+  background:var(--accent2);
+  border:none;
+  padding:6px 10px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:700;
+  color:var(--text);
+}
+.play-btn:hover{ transform:translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.05); }
+
+/* Open in external (Spotify/YouTube) button */
+.open-btn{
+  background:linear-gradient(90deg, rgba(255,214,232,0.6), rgba(205,239,253,0.6));
+  border:none;
+  padding:6px 8px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:700;
+}
+.open-btn:hover{ transform:translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.05); }
+
+/* Spotify / YouTube embed */
+.music-embed{
+  margin-top:8px;
+  border-radius:10px;
+  overflow:hidden;
+  background:#fafafa;
+  border:1px solid rgba(0,0,0,0.03);
+}
+
+/* Notes list */
+.notes{margin:0;padding-left:18px;color:var(--muted)}
+
+/* Footer */
+.footer{
+  text-align:center;
+  margin-top:22px;
+  color:var(--muted);
+  font-size:0.95rem;
+}
+
+/* Mobile tweaks */
+@media (max-width:720px){
+  .hero-card{flex-direction:row; gap:14px; padding:14px}
+  .photo-wrap{width:120px;height:120px;flex:0 0 120px}
+
+  /* En móvil la galería se apila verticalmente y las imágenes ocupan ancho completo */
+  .gallery{
+    flex-direction:column;
+    align-items:stretch;
+  }
+  .gallery img.vertical,
+  .gallery img.horizontal{
+    width:100%;
+    height:220px;
+    min-width:0;
+  }
+  .gallery img.vertical{height:260px} /* ligeramente más alto para mantener sensación vertical */
+
+  /* ajusta la horizontal en móvil para que también sea un poco más alta */
+  .gallery img.horizontal{height:280px}
+
+  /* música en móvil: inputs ocupan 100% */
+  .music-form input[type="text"]{
+    flex-basis:100%;
+  }
+  .music-form button{ width:100%}
+}
