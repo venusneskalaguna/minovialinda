@@ -179,19 +179,13 @@ document.addEventListener("DOMContentLoaded", () => {
         open.title = "Abrir en " + (parsed.provider === "spotify" ? "Spotify" : parsed.provider === "youtube" ? "YouTube" : "enlace externo");
         open.href = parsed.externalUrl;
         open.target = "_blank";
-        open.rel = "noopener";
+        open.rel = "noopener noreferrer";
         open.textContent = "⧉";
         actions.appendChild(open);
       }
 
-      // Remove button
-      const rem = document.createElement("button");
-      rem.className = "icon-btn";
-      rem.title = "Eliminar";
-      rem.innerHTML = "🗑️";
-      rem.addEventListener("click", () => removeSong(i));
-
-      actions.appendChild(rem);
+      // NOTE: Botón de eliminar eliminado por petición del usuario.
+      // Si más adelante quieres restaurarlo, podemos añadirlo de nuevo aquí.
 
       row.appendChild(meta);
       row.appendChild(actions);
