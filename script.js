@@ -2,8 +2,19 @@
 document.addEventListener("DOMContentLoaded", () => {
   // Corazones
   const btn = document.getElementById("heartBtn");
+  // Click con ratón
   btn?.addEventListener("click", (e) => {
     createHeart(e.clientX, e.clientY);
+  });
+  // Soporte teclado: Enter y Space crean el corazón en el centro del botón
+  btn?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+      e.preventDefault();
+      const rect = (e.currentTarget).getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      createHeart(centerX, centerY);
+    }
   });
 
   // Música: lista de canciones + artistas (persistencia en localStorage)
@@ -13,6 +24,71 @@ document.addEventListener("DOMContentLoaded", () => {
   const artistInput = document.getElementById("artistInput");
   const linkInput = document.getElementById("linkInput");
   const listEl = document.getElementById("musicList");
+
+  // --- Persistencia de metadata en localStorage ---
+  const META_KEY = "mi_novia_metadata_v1";
+  const META_TTL = 1000 * 60 * 60 * 24 * 7; // 7 días en ms
+
+  // Cargar cache desde localStorage (devuelve Map<link, { value: object, ts: number }>)
+  function loadMetaCacheFromStorage() {
+    try {
+      const raw = localStorage.getItem(META_KEY);
+      if (!raw) return new Map();
+      const obj = JSON.parse(raw);
+      const map = new Map();
+      for (const k of Object.keys(obj)) {
+        map.set(k, obj[k]);
+      }
+      return map;
+    } catch (e) {
+      console.warn("No se pudo leer metaCache from localStorage", e);
+      return new Map();
+    }
+  }
+
+  // Guardar cache en localStorage (acepta Map)
+  function saveMetaCacheToStorage(map) {
+    try {
+      const obj = {};
+      for (const [k, v] of map.entries()) {
+        obj[k] = v;
+      }
+      localStorage.setItem(META_KEY, JSON.stringify(obj));
+    } catch (e) {
+      console.warn("No se pudo guardar metaCache en localStorage", e);
+    }
+  }
+
+  // Inicializar metaCache desde storage
+  const metaCache = loadMetaCacheFromStorage();
+
+  // Helper para obtener entrada válida del cache (respeta TTL)
+  function getCachedMeta(link) {
+    if (!metaCache || !metaCache.has(link)) return null;
+    try {
+      const entry = metaCache.get(link);
+      if (!entry || !entry.ts) return null;
+      if (Date.now() - entry.ts > META_TTL) {
+        metaCache.delete(link);
+        saveMetaCacheToStorage(metaCache);
+        return null;
+      }
+      return entry.value;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Helper para setear y persistir
+  function setCachedMeta(link, value) {
+    try {
+      metaCache.set(link, { value, ts: Date.now() });
+      saveMetaCacheToStorage(metaCache);
+    } catch (e) {
+      console.warn("No se pudo setCachedMeta", e);
+    }
+  }
+  // --- fin persistencia metadata ---
 
   // Canciones iniciales (nuevas + previas). Serán añadidas si no existen ya (se evita duplicado).
   const initialSongs = [
@@ -83,6 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
     saveSongs();
   }
 
+  // Render initial list (async)
   renderSongs();
 
   form?.addEventListener("submit", (ev) => {
@@ -115,6 +192,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function addSong(item){
     songs.push(item);
     saveSongs();
+    // llamar a render (no bloqueante)
     renderSongs();
   }
 
@@ -124,7 +202,8 @@ document.addEventListener("DOMContentLoaded", () => {
     renderSongs();
   }
 
-  function renderSongs(){
+  // renderSongs ahora puede hacer peticiones, por eso es async
+  async function renderSongs(){
     listEl.innerHTML = "";
     if (songs.length === 0) {
       const empty = document.createElement("li");
@@ -135,7 +214,10 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    songs.forEach((it, i) => {
+    // Recorremos en orden y pedimos metadata en background (cacheada)
+    for (let i = 0; i < songs.length; i++) {
+      const it = songs[i];
+
       const li = document.createElement("li");
       li.className = "music-item";
 
@@ -145,16 +227,61 @@ document.addEventListener("DOMContentLoaded", () => {
       const meta = document.createElement("div");
       meta.className = "music-meta";
 
+      // MINI-METADATA: mini-portada si está disponible
+      let metadata = null;
+      try {
+        metadata = await fetchMetadata(it.link);
+      } catch(e){
+        // no fatal
+        metadata = null;
+      }
+
+      if (metadata && metadata.thumbnail_url) {
+        const thumb = document.createElement("img");
+        thumb.className = "music-thumb";
+        thumb.src = metadata.thumbnail_url;
+        thumb.alt = metadata.title ? `${metadata.title} - portada` : `Portada`;
+        thumb.loading = "lazy";
+        meta.appendChild(thumb);
+      }
+
+      const texts = document.createElement("div");
+      texts.style.display = "flex";
+      texts.style.flexDirection = "column";
+
       const s = document.createElement("div");
       s.className = "song";
-      s.textContent = it.song;
+      // Preferir título proveniente de metadata si es más descriptivo
+      s.textContent = metadata && metadata.title ? metadata.title : it.song;
 
       const a = document.createElement("div");
       a.className = "artist";
-      a.textContent = it.artist;
+      a.textContent = metadata && metadata.author_name ? metadata.author_name : it.artist;
 
-      meta.appendChild(s);
-      meta.appendChild(a);
+      // Si metadata contiene info extra (album/duration) mostrar en pequeño
+      const extra = document.createElement("div");
+      extra.className = "music-extra";
+      extra.style.fontSize = "0.8rem";
+      extra.style.color = "var(--muted)";
+      let extras = [];
+      if (metadata && metadata.provider_name) {
+        extras.push(metadata.provider_name);
+      }
+      // duration / album no suelen estar en oEmbed; si no existe mostramos guion
+      if (metadata && metadata.duration) {
+        extras.push(formatDuration(metadata.duration));
+      }
+      if (extras.length > 0) {
+        extra.textContent = extras.join(" • ");
+      } else {
+        extra.textContent = ""; // vacío por defecto
+      }
+
+      texts.appendChild(s);
+      texts.appendChild(a);
+      if (extra.textContent) texts.appendChild(extra);
+
+      meta.appendChild(texts);
 
       const actions = document.createElement("div");
       actions.className = "music-actions";
@@ -185,7 +312,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // NOTE: Botón de eliminar eliminado por petición del usuario.
-      // Si más adelante quieres restaurarlo, podemos añadirlo de nuevo aquí.
 
       row.appendChild(meta);
       row.appendChild(actions);
@@ -193,7 +319,16 @@ document.addEventListener("DOMContentLoaded", () => {
       li.appendChild(row);
 
       listEl.appendChild(li);
-    });
+    }
+  }
+
+  // Helper para formatear duración si llega en segundos
+  function formatDuration(sec){
+    if (!sec && sec !== 0) return "";
+    const s = Math.round(sec);
+    const m = Math.floor(s / 60);
+    const r = s % 60;
+    return `${m}:${r.toString().padStart(2, "0")}`;
   }
 
   // Merge helper: tries to detect duplicates by externalUrl when possible, otherwise by song+artist.
@@ -332,6 +467,73 @@ document.addEventListener("DOMContentLoaded", () => {
         const externalUrl = `https://www.youtube.com/watch?v=${trimmed}`;
         return { provider: "youtube", embedUrl, externalUrl, height: 315 };
       }
+      return null;
+    }
+  }
+
+  // Trae metadata básica usando endpoints oEmbed públicos (Spotify / YouTube)
+  // Retorna objeto con campos estándar: { thumbnail_url, title, author_name, provider_name, duration? }
+  async function fetchMetadata(link){
+    if (!link) return null;
+    // comprobar cache persistente primero
+    const cached = getCachedMeta(link);
+    if (cached) return cached;
+
+    // detectar provider y construir URL para oEmbed
+    try {
+      let urlToUse = link.trim();
+      // soportar spotify: URIs convirtiéndolos a URL open.spotify.com
+      if (urlToUse.startsWith("spotify:")) {
+        const parts = urlToUse.split(":");
+        if (parts.length >= 3) {
+          const type = parts[1];
+          const id = parts[2];
+          urlToUse = `https://open.spotify.com/${type}/${id}`;
+        }
+      }
+
+      // Para spotify web links, el endpoint oEmbed es: https://open.spotify.com/oembed?url={url}
+      if (urlToUse.includes("spotify.com")) {
+        const oembed = `https://open.spotify.com/oembed?url=${encodeURIComponent(urlToUse)}`;
+        const res = await fetch(oembed);
+        if (!res.ok) throw new Error("no oembed spotify");
+        const json = await res.json();
+        // json tiene thumbnail_url, author_name, title, html...
+        setCachedMeta(link, json);
+        return json;
+      }
+
+      // Para YouTube usar youtube oEmbed
+      if (urlToUse.includes("youtube.com") || urlToUse.includes("youtu.be")) {
+        // youtube oembed: https://www.youtube.com/oembed?url={url}&format=json
+        const oembed = `https://www.youtube.com/oembed?url=${encodeURIComponent(urlToUse)}&format=json`;
+        const res = await fetch(oembed);
+        if (!res.ok) throw new Error("no oembed youtube");
+        const json = await res.json();
+        // json tiene thumbnail_url, author_name, title, provider_name...
+        setCachedMeta(link, json);
+        return json;
+      }
+
+      // Fallback: intentar noembed.com (soporta varios sitios)
+      try {
+        const noembed = `https://noembed.com/embed?url=${encodeURIComponent(urlToUse)}`;
+        const r2 = await fetch(noembed);
+        if (r2.ok) {
+          const j2 = await r2.json();
+          if (!j2.error) {
+            setCachedMeta(link, j2);
+            return j2;
+          }
+        }
+      } catch(e){
+        // ignore
+      }
+
+      return null;
+    } catch (e) {
+      // Cualquier fallo -> null (no fatal)
+      // console.warn("Metadata fetch failed for", link, e);
       return null;
     }
   }
